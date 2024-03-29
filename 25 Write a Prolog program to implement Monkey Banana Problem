@@ -1,0 +1,42 @@
+% Initial state: monkey at A, box at B, banana at C, monkey not holding banana.
+% state(MonkeyLocation, BoxLocation, BananaLocation, MonkeyHasBanana)
+initial_state(state(a, b, c, has_not)).
+
+% Final state: monkey at C, box at B, banana at C, monkey holding banana.
+final_state(state(c, b, c, has)).
+
+% Valid moves in the problem
+% monkey_move(State, NewState)
+monkey_move(state(a, B, BananaLoc, has_not), state(b, B, BananaLoc, has_not)).
+monkey_move(state(b, B, BananaLoc, has_not), state(a, B, BananaLoc, has_not)).
+monkey_move(state(b, B, BananaLoc, has_not), state(c, B, BananaLoc, has_not)).
+monkey_move(state(c, B, BananaLoc, has_not), state(b, B, BananaLoc, has_not)).
+
+% monkey_climb(State, NewState)
+monkey_climb(state(Loc, Loc, BananaLoc, has_not), state(Loc, Loc, BananaLoc, has_not)).
+
+% box_push(State, NewState)
+box_push(state(Loc, Loc, Loc, has_not), state(Loc, Loc, Loc, has_not)).
+box_push(state(Loc1, Loc1, Loc3, has_not), state(Loc2, Loc2, Loc3, has_not)) :-
+    adjacent(Loc1, Loc2).
+
+% Conditions to make a move valid
+adjacent(a, b).
+adjacent(b, a).
+adjacent(b, c).
+adjacent(c, b).
+
+% Goal state checking
+goal_state(State) :- final_state(State).
+
+% Recursive depth-first search to find a solution
+% dfs(State, Path)
+dfs(State, []) :- goal_state(State).
+dfs(State, [Move|Moves]) :-
+    apply_move(State, Move),
+    dfs(Move, Moves).
+
+
+OUTPUT:
+
+?- initial_state(InitialState), dfs(InitialState, Moves).
