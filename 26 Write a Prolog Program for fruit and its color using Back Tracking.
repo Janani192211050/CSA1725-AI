@@ -1,0 +1,35 @@
+% Define diet suggestions based on diseases
+diet(sugar_diabetes, ['High fiber foods such as fruits, vegetables, and whole grains.',
+                      'Limit sugary foods and beverages.',
+                      'Include lean protein sources like poultry, fish, and beans.',
+                      'Control portion sizes to manage carbohydrate intake.']).
+
+diet(hypertension, ['Reduce sodium intake by avoiding processed foods, canned soups, and salty snacks.',
+                     'Increase intake of potassium-rich foods such as bananas, oranges, and leafy greens.',
+                     'Choose lean proteins and limit red meat consumption.',
+                     'Eat more whole grains and fiber-rich foods to promote heart health.']).
+
+diet(high_cholesterol, ['Choose foods low in saturated and trans fats, such as lean meats, fish, and poultry without skin.',
+                         'Increase intake of foods high in omega-3 fatty acids like salmon, walnuts, and flaxseeds.',
+                         'Eat plenty of fruits, vegetables, and whole grains to increase fiber intake.',
+                         'Limit consumption of high-cholesterol foods like egg yolks and orgafruit_color(apple, red).
+fruit_color(banana, yellow).
+fruit_color(grape, purple).
+fruit_color(orange, orange).
+fruit_color(lemon, yellow).
+fruit_color(blueberry, blue).
+fruit_color(watermelon, green).
+
+% Predicate to find the color of a fruit
+color_of_fruit(Fruit, Color) :-
+    fruit_color(Fruit, Color).
+
+% Predicate to find the fruit of a color
+fruit_of_color(Fruit, Color) :-
+    fruit_color(Fruit, Color).
+
+
+OUTPUT:
+
+?- color_of_fruit(apple, Color).
+Color = red.
