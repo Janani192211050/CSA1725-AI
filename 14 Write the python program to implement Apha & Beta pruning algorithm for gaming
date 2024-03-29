@@ -1,0 +1,81 @@
+import math
+
+def minimax(node, depth, alpha, beta, maximizingPlayer):
+    if depth == 0 or node.is_terminal():
+        return node.evaluate(), None
+
+    if maximizingPlayer:
+        value = -math.inf
+        best_move = None
+        for move in node.get_possible_moves():
+            child = node.make_move(move)
+            child_value, _ = minimax(child, depth - 1, alpha, beta, False)
+            if child_value > value:
+                value = child_value
+                best_move = move
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return value, best_move
+    else:
+        value = math.inf
+        best_move = None
+        for move in node.get_possible_moves():
+            child = node.make_move(move)
+            child_value, _ = minimax(child, depth - 1, alpha, beta, True)
+            if child_value < value:
+                value = child_value
+                best_move = move
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return value, best_move
+
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.children = []
+
+    def add_child(self, child):
+        self.children.append(child)
+
+    def evaluate(self):
+        return self.value
+
+    def is_terminal(self):
+        return not self.children
+
+    def get_possible_moves(self):
+        return range(len(self.children))
+
+    def make_move(self, move):
+        return self.children[move]
+
+# Example usage
+if __name__ == "__main__":
+    root = Node(0)
+    child1 = Node(3)
+    child2 = Node(12)
+    child3 = Node(8)
+    child4 = Node(2)
+
+    root.add_child(child1)
+    root.add_child(child2)
+    root.add_child(child3)
+    root.add_child(child4)
+
+    child1.add_child(Node(5))
+    child1.add_child(Node(6))
+    child2.add_child(Node(14))
+    child3.add_child(Node(10))
+    child3.add_child(Node(7))
+    child4.add_child(Node(4))
+
+    value, best_move = minimax(root, 3, -math.inf, math.inf, True)
+    print("Optimal value:", value)
+    print("Best move:", best_move)
+
+OUTPUT:
+
+Optimal value: 14
+Best move: 1
