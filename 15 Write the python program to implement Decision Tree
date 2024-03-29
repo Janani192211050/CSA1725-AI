@@ -1,0 +1,107 @@
+import numpy as np
+
+# Define Node class to represent nodes in the decision tree
+class Node:
+    def __init__(self, feature_index=None, threshold=None, left=None, right=None, value=None):
+        self.feature_index = feature_index  # Index of feature to split on
+        self.threshold = threshold          # Threshold value for the split
+        self.left = left                    # Left subtree
+        self.right = right                  # Right subtree
+        self.value = value                  # Class label for leaf nodes
+
+# Define a function to calculate Gini impurity
+def gini_impurity(y):
+    _, counts = np.unique(y, return_counts=True)
+    probs = counts / len(y)
+    return 1 - np.sum(probs ** 2)
+
+# Define a function to split the dataset based on a given feature and threshold
+def split_dataset(X, y, feature_index, threshold):
+    left_indices = np.where(X[:, feature_index] <= threshold)
+    right_indices = np.where(X[:, feature_index] > threshold)
+    left_X, left_y = X[left_indices], y[left_indices]
+    right_X, right_y = X[right_indices], y[right_indices]
+    return left_X, left_y, right_X, right_y
+
+# Define a function to find the best split for a node
+def find_best_split(X, y):
+    best_gini = float('inf')
+    best_feature_index = None
+    best_threshold = None
+
+    for feature_index in range(X.shape[1]):
+        thresholds = np.unique(X[:, feature_index])
+        for threshold in thresholds:
+            left_X, left_y, right_X, right_y = split_dataset(X, y, feature_index, threshold)
+            gini_left = gini_impurity(left_y)
+            gini_right = gini_impurity(right_y)
+            gini = (len(left_y) / len(y)) * gini_left + (len(right_y) / len(y)) * gini_right
+            if gini < best_gini:
+                best_gini = gini
+                best_feature_index = feature_index
+                best_threshold = threshold
+
+    return best_feature_index, best_threshold
+
+# Define a function to build the decision tree recursively
+def build_tree(X, y, depth=0, max_depth=None):
+    if depth == max_depth or len(np.unique(y)) == 1:
+        return Node(value=np.argmax(np.bincount(y)))
+
+    feature_index, threshold = find_best_split(X, y)
+    if feature_index is None:
+        return Node(value=np.argmax(np.bincount(y)))
+
+    left_X, left_y, right_X, right_y = split_dataset(X, y, feature_index, threshold)
+    left_subtree = build_tree(left_X, left_y, depth + 1, max_depth)
+    right_subtree = build_tree(right_X, right_y, depth + 1, max_depth)
+
+    return Node(feature_index=feature_index, threshold=threshold, left=left_subtree, right=right_subtree)
+
+# Define a function to make predictions using the decision tree
+def predict_tree(node, X):
+    if node.value is not None:
+        return node.value
+
+    if X[node.feature_index] <= node.threshold:
+        return predict_tree(node.left, X)
+    else:
+        return predict_tree(node.right, X)
+
+# Load Iris dataset
+def load_iris():
+    from sklearn.datasets import load_iris
+    iris = load_iris()
+    X = iris.data
+    y = iris.target
+    return X, y
+
+# Split dataset into training and testing sets
+def train_test_split(X, y, test_size=0.2, random_state=None):
+    np.random.seed(random_state)
+    indices = np.arange(len(X))
+    np.random.shuffle(indices)
+    split_index = int(len(X) * (1 - test_size))
+    train_indices, test_indices = indices[:split_index], indices[split_index:]
+    X_train, X_test = X[train_indices], X[test_indices]
+    y_train, y_test = y[train_indices], y[test_indices]
+    return X_train, X_test, y_train, y_test
+
+# Main function
+if __name__ == "__main__":
+    # Load Iris dataset
+    X, y = load_iris()
+
+    # Split dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Build decision tree
+    tree = build_tree(X_train, y_train)
+
+    # Make predictions on test data
+    y_pred = [predict_tree(tree, x) for x in X_test]
+
+    # Calculate accuracy
+    accuracy = np.mean(y_pred == y_test)
+    print(f"Accuracy: {accuracy:.2f}")
+
